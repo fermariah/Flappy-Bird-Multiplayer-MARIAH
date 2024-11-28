@@ -1,1 +1,77 @@
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
+public class UIManager : GameOver //classe c/herança para definir os UIs da cena de GameOver (mariah)
+{
+    [SerializeField] TextMeshProUGUI scoreText, finalScoreText, recordText;
+    [SerializeField] GameObject gameOverWindow;
+
+    public void UpdateScoreText()
+    {
+        scoreText.text = GameManager.instance.Score.ToString();
+    }
+
+    public void GameOver()
+    {
+        finalScoreText.text = GameManager.instance.Score.ToString();
+        recordText.text = PlayerPrefs.GetInt("Record").ToString();
+        gameOverWindow.SetActive(true);
+        Time.timeScale = 0;
+    }
+
+    public void Restart()
+    {
+        Time.timeScale = 1;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+}
+
+public class GameOver : MonoBehaviour //classe derivada (mariah)
+{
+    public GameObject gameOverScreen; // Arraste a tela de Game Over no Inspector
+    private bool isGameOver = false; // Indica se o jogo terminou
+
+    void Start()
+    {
+        // Garante que a tela de Game Over está oculta no início
+        gameOverScreen.SetActive(false);
+    }
+
+    void Update()
+    {
+        // Reinicia o jogo se o jogador clicar e o estado for de Game Over
+        if (isGameOver && Input.GetMouseButtonDown(0)) // Ex.: Clique do mouse ou toque
+        {
+            RestartGame();
+        }
+    }
+
+    public void GameOverMethod()
+    {
+        // Ativa a tela de Game Over
+        gameOverScreen.SetActive(true);
+        isGameOver = true;
+        Time.timeScale = 0; // Pausa o jogo
+    }
+
+    public void RestartGame()
+    {
+        // Reinicia o jogo e oculta a tela de Game Over
+        isGameOver = false;
+        gameOverScreen.SetActive(false);
+        Time.timeScale = 1; // Retorna o tempo ao normal
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Recarrega a cena
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Supondo que este script esteja no pássaro
+        if (collision.gameObject.CompareTag("Obstacle")) // Ajuste para o tag do obstáculo
+        {
+            GameOverMethod();
+        }
+    }
+}
